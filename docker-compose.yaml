@@ -1,0 +1,20 @@
+version: '3.7'
+services:
+  ixo-stake-reward-claimer:
+    container_name: ixo-stake-reward-claimer
+    image: ghcr.io/ixofoundation/ixo-stake-reward-claimer:latest
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+  ixo-stake-reward-claimer-dev:
+    container_name: ixo-stake-reward-claimer-dev
+    build:
+      context: .
+      dockerfile: Dockerfile
+    tty: true
+    image: ixo-stake-reward-claimer:dev
+    restart: unless-stopped
+    volumes:
+      - ./:/app
+    ports:
+      - 3001:3001
