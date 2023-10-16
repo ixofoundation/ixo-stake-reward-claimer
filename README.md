@@ -77,6 +77,8 @@ version: '3'
 services:
   ixo-stake-reward-claimer:
     image: ghcr.io/ixofoundation/ixo-stake-reward-claimer:v0.0.1
+    container_name: ixo-stake-reward-claimer
+    restart: always
     ports:
       - '3000:3000'
     # Add all environment variables below

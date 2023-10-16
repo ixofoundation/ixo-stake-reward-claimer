@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
-// import { Cron, CronExpression } from '@nestjs/schedule';
-import { RevokeDelegationDto } from './dto/delegations.dto';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { IxoClient } from 'src/helpers/ixoClient';
 
 @Injectable()
@@ -33,8 +32,8 @@ export class DelegationsService {
     return res;
   }
 
-  // @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
-  // async clearReservation() {
-  //   await this.claimDelegationRewards();
-  // }
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async clearReservation() {
+    await this.claimDelegationRewards();
+  }
 }
