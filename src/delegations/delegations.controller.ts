@@ -17,14 +17,14 @@ export class DelegationsController {
     }
   }
 
-  @Post('/revoke')
-  revokeAuthzForDelegationClaims(@Body() dto: RevokeDelegationDto) {
-    try {
-      return this.delegationsService.revokeAuthzForDelegationClaims(dto);
-    } catch (error) {
-      throw new HttpException(error.message, 400);
-    }
-  }
+  // @Post('/revoke')
+  // revokeAuthzForDelegationClaims(@Body() dto: RevokeDelegationDto) {
+  //   try {
+  //     return this.delegationsService.revokeAuthzForDelegationClaims(dto);
+  //   } catch (error) {
+  //     throw new HttpException(error.message, 400);
+  //   }
+  // }
 
   @Get('/list')
   listAuthzForDelegationClaims() {

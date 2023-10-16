@@ -8,13 +8,19 @@
 
 </div>
 
-The Ixo Stake Rewards Claimer server is developed to run a job daily to execute all authz's for caliming delegation rewards. This way users don't have to do manual claims as the worker will run daily and claim rewards for them. This server allows querying data about authz's granted to the workers address and performing blockchain transactions related to the authz's such as revoking a specific address or running the claim worker manually.
+The Ixo Stake Rewards Claimer server is developed to run a job daily to execute all authz's for caliming delegation rewards. This way users don't have to do manual claims as the worker will run daily and claim rewards for them. This server allows querying data about authz's granted to the workers address and performing blockchain transactions related to the authz's such as running the claim worker manually.
 
-## Installation
+## How the Server Utilizes authz Messages
 
-```bash
-$ yarn
-```
+When users grant the server account permission to claim rewards on their behalf, an authz message is created on the Ixo network. The server checks for these authz messages daily.
+
+Fetching authz Messages: The server queries the Ixo blockchain to retrieve all authz messages granted to its account.
+
+Filtering Relevant Permissions: Not all authz messages may be for claiming delegation rewards. The server filters out only those permissions relevant to claiming rewards.
+
+Executing Claims: For each relevant authz message, the server sends a claim delegation rewards message to the Ixo network, effectively claiming the rewards on behalf of the user.
+
+Filtering Relevant Executions: For each relevant authz message, the server also filters out any users delegations that totals less than 1ixo.
 
 ## Environment Variables
 
@@ -41,6 +47,14 @@ This environment configuration section can serve as a guide to developers, syste
 ## Running the app
 
 ```bash
+# Clone the repository
+$ git clone https://github.com/ixofoundation/ixo-stake-reward-claimer.git
+# Navigate to the project directory
+$ cd ixo-stake-reward-claimer
+
+# Install dependancies
+$ yarn install
+
 # development
 $ yarn run start
 
@@ -51,4 +65,94 @@ $ yarn run start:dev
 $ yarn run start:prod
 ```
 
+## Docker Usage
+
+If you prefer to run the application inside a Docker container, we've provided a Docker image for convenience. The image is available at `ghcr.io/ixofoundation/ixo-stake-reward-claimer:v0.0.1` and an example docker-compose file is below for reference:
+
+### docker-compose.yaml
+
+```yaml
+version: '3'
+
+services:
+  ixo-stake-reward-claimer:
+    image: ghcr.io/ixofoundation/ixo-stake-reward-claimer:v0.0.1
+    ports:
+      - '3000:3000'
+    # Add all environment variables below
+    environment:
+      - SOME_ENV_VARIABLE=value
+    # Or optionally use a .env file
+    env_file:
+      - .env
+```
+
 ## API Documentation
+
+### GET `/delegations/list`
+
+This endpoint allows users to fetch a list of delegation authorizations (`authz`) that have been granted to the server's account. It provides detailed information about the granters, grantees, expiration times, and the specific type of authorization messages associated with the grant. The server already filters out any authz that has already expired or that is not of type `/cosmos.authz.v1beta1.GenericAuthorization` with a msg of `/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward`
+
+#### Parameters
+
+- `none`: This endpoint does not require any parameters.
+
+#### Response Body
+
+```json
+[
+    {
+        "granter": "string",
+        "grantee": "string",
+        "expiration": "number", #ms since epoch
+        "authorization": {
+            "typeUrl": "/cosmos.authz.v1beta1.GenericAuthorization",
+            "value": {
+                "msg": "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward"
+            }
+        }
+    },
+    ...
+]
+```
+
+#### Properties
+
+- **granter**: The Cosmos address that has granted the `authz` permission.
+- **grantee**: The Cosmos address that has received the `authz` permission.
+- **expiration**: The expiration time of the `authz` permission.
+- **authorization**:
+  - **typeUrl**: The URL type of the `authz` authorization.
+  - **value**:
+    - **msg**: The specific message type indicating the kind of operation the `authz` authorization allows.
+
+#### Usage
+
+```bash
+curl -X GET https://[server-address]/delegations/list
+```
+
+### POST `/delegations/claim`
+
+This endpoint triggers the server to manually execute the function which the daily cron job runs. It processes the delegation rewards claims on behalf of users based on the authorizations (`authz`) granted to the server's account.
+
+#### Parameters
+
+- `none`: This endpoint does not require any parameters.
+
+#### Response Body
+
+```
+'No Authz found' # when there is no authz to execute
+'Success' # when everything went successfull
+```
+
+#### Properties
+
+- No properties since the response is a simple string message.
+
+#### Usage
+
+```bash
+curl -X POST https://[server-address]/delegations/claim
+```

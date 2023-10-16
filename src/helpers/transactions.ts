@@ -1,7 +1,5 @@
-import { cosmos, ixo } from '@ixo/impactxclient-sdk';
-
-import { TrxMsg, TrxMsgWithTypeUrl } from '../types/transactions';
-import { ImpactToken } from 'src/types/tokens';
+import { cosmos } from '@ixo/impactxclient-sdk';
+import { TrxMsg } from '../types/transactions';
 
 export const TRX_TYPES = {
   // ====================================================================================================
@@ -70,62 +68,45 @@ export const generateExecTrx = ({
   }),
 });
 
-export const generateTransferEntityTrx = (
+export const generateWithdrawRewardTrx = (
   {
-    id,
-    ownerDid,
-    ownerAddress,
-    recipientDid,
+    delegatorAddress,
+    validatorAddress,
   }: {
-    id: string;
-    ownerDid: string;
-    ownerAddress: string;
-    recipientDid: string;
-  },
-  encode = false,
-): TrxMsgWithTypeUrl => {
-  const value = ixo.entity.v1beta1.MsgTransferEntity.fromPartial({
-    id,
-    ownerDid,
-    ownerAddress,
-    recipientDid,
-  });
-
-  return {
-    typeUrl: TRX_TYPES.MsgTransferEntity,
-    value: encode
-      ? ixo.entity.v1beta1.MsgTransferEntity.encode(value).finish()
-      : value,
-  };
-};
-
-export const generateTransferTokenTrx = (
-  {
-    owner,
-    recipient,
-    tokens,
-  }: {
-    owner: string;
-    recipient: string;
-    tokens: ImpactToken[];
+    delegatorAddress: string;
+    validatorAddress: string;
   },
   encode = false,
 ) => {
-  const value = ixo.token.v1beta1.MsgTransferToken.fromPartial({
-    owner,
-    recipient,
-    tokens: tokens.map((b) =>
-      ixo.token.v1beta1.TokenBatch.fromPartial({
-        id: b.id,
-        amount: (b?.amount ?? 0).toString(),
-      }),
-    ),
-  });
+  const value =
+    cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward.fromPartial({
+      delegatorAddress,
+      validatorAddress,
+    });
 
   return {
-    typeUrl: TRX_TYPES.MsgTransferToken,
+    typeUrl: TRX_TYPES.MsgWithdrawDelegatorReward,
     value: encode
-      ? ixo.token.v1beta1.MsgTransferToken.encode(value).finish()
+      ? cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward.encode(
+          value,
+        ).finish()
       : value,
   };
 };
+
+export const generateRevokeAuthTrx = ({
+  grantee,
+  granter,
+  msgTypeUrl,
+}: {
+  grantee: string;
+  granter: string;
+  msgTypeUrl: string;
+}) => ({
+  typeUrl: TRX_TYPES.MsgRevoke,
+  value: cosmos.authz.v1beta1.MsgRevoke.fromPartial({
+    grantee,
+    granter,
+    msgTypeUrl,
+  }),
+});
