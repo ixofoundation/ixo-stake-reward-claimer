@@ -4,7 +4,7 @@
   "description": "Ixo server to claim delegation rewards prediodically through Authz",
   "author": "Ixo Foundation",
   "private": true,
-  "license": "MIT",
+  "license": "Apache 2",
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
