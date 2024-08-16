@@ -1,6 +1,6 @@
 {
   "name": "ixo-stake-reward-claimer",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Ixo server to claim delegation rewards prediodically through Authz",
   "author": "Ixo Foundation",
   "private": true,
