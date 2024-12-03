@@ -215,7 +215,7 @@ export class IxoClient {
         },
       );
 
-    console.log(response);
+    // console.log(response);
 
     return {
       ...response,
