@@ -14,7 +14,7 @@ import {
 } from './transactions';
 import { chunkArray } from './general';
 require('dotenv').config();
-var store = require('store');
+const store = require('store');
 
 export type SigningClientType = Awaited<ReturnType<typeof createSigningClient>>;
 export type QueryClientType = Awaited<ReturnType<typeof createQueryClient>>;
@@ -107,11 +107,11 @@ export class IxoClient {
     await this.checkInitiated();
 
     const address = (await this.wallet.getAccounts())[0].address;
-    let authzs = await this.listAuthzForDelegationClaims();
+    const authzs = await this.listAuthzForDelegationClaims();
     if (!authzs.length) return 'No Authz found';
 
     // chunk all authzs up into 10 users per chunk
-    for (let chunk of chunkArray(authzs, 10)) {
+    for (const chunk of chunkArray(authzs, 10)) {
       // delegations per user
       let delegations = await Promise.all(
         chunk.map(async (a) => ({
