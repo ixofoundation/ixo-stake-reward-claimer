@@ -40,3 +40,9 @@ async function bootstrap() {
   });
 }
 bootstrap();
+
+// patch for bigint to json
+// @ts-ignore
+BigInt.prototype.toJSON = function () {
+  return this.toString();
+};
